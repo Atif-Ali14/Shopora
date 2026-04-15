@@ -1,0 +1,81 @@
+/* eslint-disable react/prop-types */
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../redux/cartSlice";
+import toast from "react-hot-toast";
+
+export default function ProductModal({ product, onClose }) {
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
+
+  if (!product) return null;
+
+  // Check if product is already in cart
+  const isInCart = cartItems.some((item) => item.id === product.id);
+
+  const handleAddToCart = () => {
+    if (isInCart) {
+      toast.error("This product is already in your cart!");
+    } else {
+      dispatch(addToCart(product));
+      toast.success("Product added to cart successfully!");
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300"
+      onClick={onClose}
+    >
+      <div
+        className="p-6 rounded-lg max-w-md w-full mx-4 relative shadow-xl animate-fadeIn scale-100"
+        style={{ backgroundColor: 'var(--pure-white)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* ❌ Close Button */}
+        <button
+          onClick={onClose}
+          style={{ color: 'var(--slate-gray)' }}
+          className="absolute top-3 right-3 text-lg font-bold hover:opacity-80"
+        >
+          ✕
+        </button>
+
+        {/* 🖼️ Product Image */}
+        <img
+          src={product.image}
+          alt={product.name}
+          className="h-48 object-contain mx-auto mb-4"
+        />
+
+        {/* 📝 Product Info */}
+        <h2 className="text-2xl font-semibold mb-2 text-primary-text">
+          {product.name}
+        </h2>
+        <p className="text-secondary-text mb-2">
+          Category: {product.category || "N/A"}
+        </p>
+        <p style={{ color: 'var(--shopora-blue)' }} className="font-bold text-xl">${product.price}</p>
+        <p className="text-secondary-text text-sm mt-2 mb-4 leading-relaxed">
+          {product.description}
+        </p>
+
+        {/* 🛒 Add to Cart Button */}
+        <button
+          style={{
+            backgroundColor: isInCart ? 'var(--emerald-green)' : 'var(--sunrise-orange)',
+            color: 'var(--pure-white)'
+          }}
+          className={`mt-3 px-4 py-2 rounded-md transition-all ${
+            isInCart
+              ? "cursor-default"
+              : "hover:opacity-90"
+          }`}
+          onClick={handleAddToCart}
+          disabled={isInCart}
+        >
+          {isInCart ? "Added ✓" : "Add to Cart"}
+        </button>
+      </div>
+    </div>
+  );
+}
